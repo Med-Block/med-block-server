@@ -1,5 +1,6 @@
 import { Sequelize } from "sequelize";
 import { initializeUser, Record, RecordType, Licence } from "../models/db";
+import * as hash from "../utils/hash";
 
 export const db = new Sequelize({
     dialect: 'postgres',
@@ -34,9 +35,39 @@ export const init = async () => {
         models.Licence.belongsTo(models.User, { foreignKey: 'userId' });
         models.User.hasMany(models.Licence, { foreignKey: 'docroId' });
         models.Licence.belongsTo(models.User, { foreignKey: 'docroId' });
-        
+
         await db.sync();
+
         console.log('All models were synchronized successfully.');
+
+        if ((await models.User.count()) === 0) {
+            await models.User.bulkCreate([
+                {
+                    email: "test1@gmail.com",
+                    password: hash.calculate("password"),
+                    role: 'user',
+                    firstName: "Artem",
+                    lastName: "TestUser1",
+                    isBlocked: false
+                },
+                {
+                    email: "test2@gmail.com",
+                    password: hash.calculate("password"),
+                    role: 'user',
+                    firstName: "Keril",
+                    lastName: "TestUser2",
+                    isBlocked: false
+                },
+                {
+                    email: "test3@gmail.com",
+                    password: hash.calculate("password"),
+                    role: 'user',
+                    firstName: "Oleksey",
+                    lastName: "TestUser3",
+                    isBlocked: false
+                }
+            ]);
+        }
     } catch (error) {
         console.error('Unable to connect to the database:', error);
     }

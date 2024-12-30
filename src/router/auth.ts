@@ -17,12 +17,12 @@ router.post("/login", async (req: MedBlockRequest, res: Response) => {
         }
     });
     if (!user) {
-        res.status(401).send("Invalid username or password");
+        res.status(401).send("Invalid email or password");
         return;
     }
 
     if (!hash.verify(password, user.password)) {
-        res.status(401).send("Invalid password or username");
+        res.status(401).send("Invalid email or password");
         return;
     }
 
