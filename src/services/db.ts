@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { User, Record, RecordType, Licence } from "../models";
+import { initializeUser, Record, RecordType, Licence } from "../models/db";
 
 export const db = new Sequelize({
     dialect: 'postgres',
@@ -11,7 +11,7 @@ export const db = new Sequelize({
 });
 
 export const models = {
-    User: User(db),
+    User: initializeUser(db),
     Record: Record(db),
     RecordType: RecordType(db),
     Licence: Licence(db),

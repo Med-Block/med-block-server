@@ -1,14 +1,23 @@
-/*
-- user
-    - login
-    - register
-    - get sefl
-    - get by id
-    - update by id
-    - block by id
-*/
 import * as dotenv from "dotenv";
+import * as fs from "fs";
+import * as path from "path";
 dotenv.config();
 import { db, init } from "./services/db";
+import express from "express";
+
+const app = express();
+const ROUTERS_PATH = path.join(__dirname, "router");
 
 init();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+fs.readdirSync(ROUTERS_PATH).forEach((file) => {
+    const router = require(path.join(ROUTERS_PATH, file)).default;
+    app.use(`/api/${file.replace(".ts", "").replace(".js", "")}`, router);
+});
+
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
+});
