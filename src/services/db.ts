@@ -45,7 +45,7 @@ export const init = async () => {
                 {
                     email: "test1@gmail.com",
                     password: hash.calculate("password"),
-                    role: 'user',
+                    role: 'admin',
                     firstName: "Artem",
                     lastName: "TestUser1",
                     isBlocked: false
@@ -53,7 +53,7 @@ export const init = async () => {
                 {
                     email: "test2@gmail.com",
                     password: hash.calculate("password"),
-                    role: 'user',
+                    role: 'doctor',
                     firstName: "Keril",
                     lastName: "TestUser2",
                     isBlocked: false
