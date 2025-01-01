@@ -1,6 +1,6 @@
 import { initializeUser } from "./user";
 import { Record } from "./record";
 import { RecordType } from "./recordType";
-import { Licence } from "./licence";
+import { License } from "./license";
 
-export { initializeUser, Record, RecordType, Licence };
+export { initializeUser, Record, RecordType, License };

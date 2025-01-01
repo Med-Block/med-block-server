@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { initializeUser, Record, RecordType, Licence } from "../models/db";
+import { initializeUser, Record, RecordType, License } from "../models/db";
 import * as hash from "../utils/hash";
 
 export const db = new Sequelize({
@@ -15,7 +15,7 @@ export const models = {
     User: initializeUser(db),
     Record: Record(db),
     RecordType: RecordType(db),
-    Licence: Licence(db),
+    License: License(db),
 };
 
 export const init = async () => {
@@ -31,10 +31,10 @@ export const init = async () => {
         models.Record.belongsTo(models.RecordType, { foreignKey: 'type' });
         models.RecordType.hasMany(models.Record, { foreignKey: 'type' });
         // Licence
-        models.User.hasMany(models.Licence, { foreignKey: 'userId' });
-        models.Licence.belongsTo(models.User, { foreignKey: 'userId' });
-        models.User.hasMany(models.Licence, { foreignKey: 'docroId' });
-        models.Licence.belongsTo(models.User, { foreignKey: 'docroId' });
+        models.User.hasMany(models.License, { foreignKey: 'userId' });
+        models.License.belongsTo(models.User, { foreignKey: 'userId' });
+        models.User.hasMany(models.License, { foreignKey: 'docroId' });
+        models.License.belongsTo(models.User, { foreignKey: 'docroId' });
 
         await db.sync();
 

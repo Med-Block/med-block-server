@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
-export const Licence = ( sequelize: Sequelize) => {
-    return sequelize.define('Licence' , {
+export const License = ( sequelize: Sequelize) => {
+    return sequelize.define('License' , {
         id: {
             type: DataTypes.BIGINT,
             autoIncrement: true,
@@ -12,7 +12,7 @@ export const Licence = ( sequelize: Sequelize) => {
             allowNull: false,
             field: 'user_id',
         },
-        docroId: {
+        doctorId: {
             type: DataTypes.BIGINT,
             allowNull: false,
             field: 'doctor_id'
