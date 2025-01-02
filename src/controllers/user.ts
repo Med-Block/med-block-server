@@ -80,3 +80,8 @@ export async function blockSwitchById(req: MedBlockRequest, res: Response) {
     await user.save();
     res.send(new UserResponse(user));
 }
+
+export async function getAll(req: MedBlockRequest, res: Response) {
+    const users = await models.User.findAll();
+    res.send(users.map(user => new UserResponse(user)));
+}

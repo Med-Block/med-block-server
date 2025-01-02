@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 
-export type UserRole = 'admin' | 'user' | 'doctor';
+export type UserRole = 'admin' | 'user' | 'doctor' | string;
 
 export interface UserAttributes {
     id: number;
