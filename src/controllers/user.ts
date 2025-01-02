@@ -85,3 +85,20 @@ export async function getAll(req: MedBlockRequest, res: Response) {
     const users = await models.User.findAll();
     res.send(users.map(user => new UserResponse(user)));
 }
+
+export async function deleteUser(req: MedBlockRequest, res: Response) {
+    const userId = req.params.id;
+    const user = await models.User.findOne({
+        where: {
+            id: userId
+        }
+    });
+
+    if (!user) {
+        res.status(404).send('User not found');
+        return;
+    }
+
+    await user.destroy();
+    res.send(new UserResponse(user));
+}
