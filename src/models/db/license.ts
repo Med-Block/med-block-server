@@ -1,7 +1,27 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 
-export const License = ( sequelize: Sequelize) => {
-    return sequelize.define('License' , {
+export interface LicenseAttributes {
+    id: number;
+    userId: number;
+    doctorId: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface LicenseCreationAttributes extends Omit<LicenseAttributes, 'id'> {}
+
+export class License extends Model<LicenseAttributes, LicenseCreationAttributes> implements LicenseAttributes {
+    public id!: number;
+    public userId!: number;
+    public doctorId!: number;
+    public isActive!: boolean;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+}
+
+export const initializeLicense = (sequelize: Sequelize): typeof License => {
+    License.init({
         id: {
             type: DataTypes.BIGINT,
             autoIncrement: true,
@@ -32,5 +52,12 @@ export const License = ( sequelize: Sequelize) => {
             allowNull: false,
             field: 'updated_at',
         },
+    }, {
+        sequelize,
+        modelName: 'License',
+        tableName: 'Licenses',
+        timestamps: false,
     });
+
+    return License;
 }

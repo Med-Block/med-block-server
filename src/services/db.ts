@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { initializeUser, Record, RecordType, License } from "../models/db";
+import { initializeUser, initializeLicense, initializeLicenseLog, initializeRecord, initializeRecordType } from "../models/db";
 import * as hash from "../utils/hash";
 
 export const db = new Sequelize({
@@ -13,9 +13,10 @@ export const db = new Sequelize({
 
 export const models = {
     User: initializeUser(db),
-    Record: Record(db),
-    RecordType: RecordType(db),
-    License: License(db),
+    Record: initializeRecord(db),
+    RecordType: initializeRecordType(db),
+    License: initializeLicense(db),
+    LicenseLog: initializeLicenseLog(db),
 };
 
 export const init = async () => {
@@ -30,11 +31,16 @@ export const init = async () => {
         // Record
         models.Record.belongsTo(models.RecordType, { foreignKey: 'type' });
         models.RecordType.hasMany(models.Record, { foreignKey: 'type' });
-        // Licence
+        // License
         models.User.hasMany(models.License, { foreignKey: 'userId' });
         models.License.belongsTo(models.User, { foreignKey: 'userId' });
-        models.User.hasMany(models.License, { foreignKey: 'docroId' });
-        models.License.belongsTo(models.User, { foreignKey: 'docroId' });
+        models.User.hasMany(models.License, { foreignKey: 'doctorId' });
+        models.License.belongsTo(models.User, { foreignKey: 'doctorId' });
+        // LicenseLog
+        models.License.hasMany(models.LicenseLog, { foreignKey: 'licenseId' });
+        models.LicenseLog.belongsTo(models.License, { foreignKey: 'licenseId' });
+        models.User.hasMany(models.LicenseLog, { foreignKey: 'userId' });
+        models.LicenseLog.belongsTo(models.User, { foreignKey: 'userId' });
 
         await db.sync();
 

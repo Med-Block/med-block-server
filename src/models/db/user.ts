@@ -1,12 +1,14 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 
+export type UserRole = 'admin' | 'user' | 'doctor';
+
 export interface UserAttributes {
     id: number;
     firstName: string;
     lastName: string;
     email: string;
     password: string;
-    role: string;
+    role: UserRole;
     position?: string;
     isBlocked?: boolean;
 }
@@ -19,7 +21,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public lastName!: string;
     public email!: string;
     public password!: string;
-    public role!: string;
+    public role!: UserRole;
     public position!: string;
     public isBlocked!: boolean;
 }
@@ -54,7 +56,7 @@ export const initializeUser = (sequelize: Sequelize): typeof User => {
             allowNull: false,
         },
         role: {
-            type: DataTypes.ENUM('admin', 'user', 'doctor'),
+            type: DataTypes.ENUM<UserRole>("admin", "user", "doctor"),
             allowNull: false,
         },
         position: {

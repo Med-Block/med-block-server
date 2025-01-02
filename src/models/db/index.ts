@@ -1,6 +1,7 @@
 import { initializeUser } from "./user";
-import { Record } from "./record";
-import { RecordType } from "./recordType";
-import { License } from "./license";
+import { initializeRecord } from "./record";
+import { initializeRecordType } from "./recordType";
+import { initializeLicense } from "./license";
+import { initializeLicenseLog } from "./licenseLog";
 
-export { initializeUser, Record, RecordType, License };
+export { initializeUser, initializeRecord, initializeRecordType, initializeLicense, initializeLicenseLog };

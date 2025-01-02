@@ -1,7 +1,31 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 
-export const Record = ( sequelize: Sequelize) => {
-    return sequelize.define('Record' , {
+export interface RecordAttributes {
+    id: number;
+    patientId: number;
+    doctorId: number;
+    type: number;
+    title: string;
+    diagnosis: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface RecordCreationAttributes extends Omit<RecordAttributes, 'id'> {}
+
+export class Record extends Model<RecordAttributes, RecordCreationAttributes> implements RecordAttributes {
+    public id!: number;
+    public patientId!: number;
+    public doctorId!: number;
+    public type!: number;
+    public title!: string;
+    public diagnosis!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+}
+
+export const initializeRecord = (sequelize: Sequelize): typeof Record => {
+    Record.init({
         id: {
             type: DataTypes.BIGINT,
             autoIncrement: true,
@@ -39,5 +63,12 @@ export const Record = ( sequelize: Sequelize) => {
             allowNull: false,
             field: 'updated_at',
         },
+    }, {
+        sequelize,
+        modelName: 'Record',
+        tableName: 'Records',
+        timestamps: false,
     });
+
+    return Record;
 }

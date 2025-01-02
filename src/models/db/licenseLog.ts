@@ -1,17 +1,39 @@
 import e from 'express';
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 
-export const LicenceLog = ( sequelize: Sequelize) => {
-    return sequelize.define('LicenceLog' , {
+export type LicenseLogEvent = 'activate' | 'deactivate' | 'force_deactivate';
+
+export interface LicenseLogAttributes {
+    id: number;
+    licenseId: number;
+    userId: number;
+    event: LicenseLogEvent;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface LicenseLogCreationAttributes extends Omit<LicenseLogAttributes, 'id'> {}
+
+export class LicenseLog extends Model<LicenseLogAttributes, LicenseLogCreationAttributes> implements LicenseLogAttributes {
+    public id!: number;
+    public licenseId!: number;
+    public userId!: number;
+    public event!: LicenseLogEvent;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+}
+
+export const initializeLicenseLog = (sequelize: Sequelize): typeof LicenseLog => {
+    LicenseLog.init({
         id: {
             type: DataTypes.BIGINT,
             autoIncrement: true,
             primaryKey: true,
         },
-        licenceId: {
+        licenseId: {
             type: DataTypes.BIGINT,
             allowNull: false,
-            field: 'licence_id',
+            field: 'license_id',
         },
         userId: {
             type: DataTypes.BIGINT,
@@ -19,7 +41,7 @@ export const LicenceLog = ( sequelize: Sequelize) => {
             field: 'user_id'
         },
         event: {
-            type: DataTypes.ENUM('activate', 'deactivate', 'force_deactivate'),
+            type: DataTypes.ENUM<LicenseLogEvent>("activate", "deactivate", "force_deactivate"),
             allowNull: false,
         },
         createdAt: {
@@ -32,5 +54,12 @@ export const LicenceLog = ( sequelize: Sequelize) => {
             allowNull: false,
             field: 'updated_at',
         },
+    }, {
+        sequelize,
+        modelName: 'LicenseLog',
+        tableName: 'LicenseLogs',
+        timestamps: false,
     });
+
+    return LicenseLog;
 }

@@ -12,8 +12,8 @@ const ROUTERS_PATH = path.join(__dirname, "router");
 init();
 
 app.use(cors({
-    origin: [process.env.CORS_ORIGIN || 'http://localhost:5173'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: [process.env.CORS_ORIGIN ?? 'http://localhost:5173'],
+    methods: process.env.CORS_METHODS?.split(",") ?? ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 app.use(express.json());
