@@ -63,6 +63,38 @@ export async function updateSelf(req: MedBlockRequest, res: Response) {
     }
 }
 
+export async function updateById(req: MedBlockRequest, res: Response) {
+    const userId = req.params.id;
+    const user = await models.User.findOne({
+        where: {
+            id: userId
+        }
+    });
+
+    if (!user) {
+        res.status(404).send('User not found');
+        return;
+    }
+
+    const email = req.body.email as string;
+    const firstName = req.body.firstName as string;
+    const lastName = req.body.lastName as string;
+    const position = req.body.position as string;
+    const role = req.body.role as string;
+    try {
+        user.email = email as string ?? user.email;
+        user.firstName = firstName as string ?? user.firstName;
+        user.lastName = lastName as string ?? user.lastName;
+        user.position = position;
+        user.role = role as string ?? user.role;
+        await user.save();
+        res.send(new UserResponse(user));
+    } catch (error) {
+        res.status(400).send('Invalid input');
+        return;
+    }
+}
+
 export async function blockSwitchById(req: MedBlockRequest, res: Response) {
     const userId = req.params.id;
     const user = await models.User.findOne({

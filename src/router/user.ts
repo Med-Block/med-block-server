@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { blockSwitchById, deleteUser, getAll, getById, getSelf, updateSelf } from "../controllers/user";
+import { blockSwitchById, deleteUser, getAll, getById, getSelf, updateById, updateSelf } from "../controllers/user";
 import { guard, claimGuard } from "../services/guard";
 
 const router = Router();
@@ -9,6 +9,7 @@ router.get("/self", guard, getSelf);
 router.get("/:id", guard, getById);
 
 router.put("/self", guard, updateSelf);
+router.put("/:id", claimGuard('admin'), updateById);
 
 router.post("/block/:id", claimGuard('admin'), blockSwitchById);
 
