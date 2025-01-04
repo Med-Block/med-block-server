@@ -2,7 +2,7 @@ import { Router, Response } from "express";
 import { MedBlockRequest } from "../requests";
 import * as hash from "../utils/hash";
 import * as jwt from "../utils/jwt";
-import { db, models } from "../services/db";
+import { models } from "../services/db";
 import { UserResponse } from "../response/user";
 import { claimGuard } from "../services/guard";
 import { EmailTemplates, sendEmail } from "../services/email";
@@ -75,7 +75,7 @@ router.post("/register", claimGuard(['admin', 'doctor']), async (req: MedBlockRe
         });
 
         if (searchUser) {
-            throw new Error("User already exists");
+            throw new Error("There is a user with the same email address");
         }
 
         const user = await models.User.create({
@@ -84,6 +84,7 @@ router.post("/register", claimGuard(['admin', 'doctor']), async (req: MedBlockRe
             role: role,
             firstName: firstName,
             lastName: lastName,
+            position: role === 'doctor' ? position : undefined,
             isBlocked: false
         });
 

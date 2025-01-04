@@ -134,7 +134,7 @@ export async function updateById(req: MedBlockRequest, res: Response) {
 
     const firstName = req.body.firstName as string;
     const lastName = req.body.lastName as string;
-    const position = req.body.position as string;
+    const position = req.body.position as string | undefined;
     const role = req.body.role as string;
 
     try {
@@ -144,16 +144,19 @@ export async function updateById(req: MedBlockRequest, res: Response) {
         if(user.role === 'doctor' && reqRole !== 'admin') {
             throw new Error('You are not allowed to update this user');
         }
+        if(role === 'doctor' && !position) {
+            throw new Error("Invalid request. Expected position for doctor");
+        }
         user.firstName = firstName as string ?? user.firstName;
         user.lastName = lastName as string ?? user.lastName;
         if (reqRole === 'admin') {
             user.role = role as string ?? user.role;
-            user.position = position;
+            user.position = user.role === 'doctor' ? position! : '';
         }
         await user.save();
         res.send(new UserResponse(user));
-    } catch (error) {
-        res.status(400).send('Invalid input');
+    } catch (error: any) {
+        res.status(403).send(error.message);
         return;
     }
 }

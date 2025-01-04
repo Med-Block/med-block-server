@@ -62,6 +62,7 @@ export const init = async () => {
                     role: 'doctor',
                     firstName: "Keril",
                     lastName: "TestUser2",
+                    position: "Surgeon",
                     isBlocked: false
                 },
                 {
