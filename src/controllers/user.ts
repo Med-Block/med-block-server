@@ -4,6 +4,7 @@ import { models } from '../services/db';
 import { UserResponse } from '../response/user';
 import { calculate, verify } from '../utils/hash';
 import { EmailTemplates, sendEmail } from '../services/email';
+import { Order } from 'sequelize';
 
 export async function getSelf(req: MedBlockRequest, res: Response) {
     const userId = req.user!.id;
@@ -177,10 +178,14 @@ export async function blockSwitchById(req: MedBlockRequest, res: Response) {
 
 export async function getAll(req: MedBlockRequest, res: Response) {
     var role = req.user!.role;
-    const users = role === 'admin' ? await models.User.findAll() : await models.User.findAll({
+    const options = {
+        order: [ ['lastName', 'ASC'] ] as Order
+    };
+    const users = role === 'admin' ? await models.User.findAll(options) : await models.User.findAll({
         where: {
             role: 'user'
-        }
+        },
+        ...options
     });
     res.send(users.map(user => new UserResponse(user)));
 }
