@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { MedBlockRequest } from '../requests';
 import { models } from '../services/db';
 import { UserResponse } from '../response/user';
-import { calculate } from '../utils/hash';
+import { calculate, verify } from '../utils/hash';
 import { EmailTemplates, sendEmail } from '../services/email';
 
 export async function getSelf(req: MedBlockRequest, res: Response) {
@@ -88,6 +88,31 @@ export async function restPassword(req: MedBlockRequest, res: Response) {
         password: password
     });
 
+    await user.save();
+    res.send(new UserResponse(user));
+}
+
+export async function updateSelfPassword(req: MedBlockRequest, res: Response) {
+    const userId = req.user!.id;
+    const currentPassword = req.body.currentPassword as string;
+    const newPassword = req.body.newPassword as string;
+    const user = await models.User.findOne({
+        where: {
+            id: userId
+        }
+    });
+
+    if (!user) {
+        res.status(404).send('User not found');
+        return;
+    }
+
+    if (!verify(currentPassword, user.password)) {
+        res.status(400).send('Invalid password');
+        return;
+    }
+
+    user.password = calculate(newPassword);
     await user.save();
     res.send(new UserResponse(user));
 }
