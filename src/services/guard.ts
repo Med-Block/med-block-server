@@ -25,14 +25,20 @@ export function claimGuard(claim: UserRole | UserRole[]) {
                 throw new Error("Invalid JWT token");
             }
             const userRole = req.user.role;
-            if (!userRole){
-                throw new Error("Unauthorized");
+            if (!userRole) {
+                throw new Error("Unauthorized. User role not found");
             }
-            if (Array.isArray(claim) && !claim.includes(userRole)) {
-                throw new Error("Unauthorized");
-            }
-            if (!req.user.role || req.user.role !== claim) {
-                throw new Error("Unauthorized");
+            if (Array.isArray(claim)) {
+                if (claim.length == 0) {
+                    throw new Error("Unauthorized. Claim not found");
+                }
+                if (!claim.includes(userRole)) {
+                    throw new Error("Permission denied");
+                }
+            } else {
+                if (userRole != claim) {
+                    throw new Error("Permission denied");
+                }
             }
             next();
         } catch (err: any) {

@@ -4,6 +4,8 @@ import * as hash from "../utils/hash";
 import * as jwt from "../utils/jwt";
 import { db, models } from "../services/db";
 import { UserResponse } from "../response/user";
+import { claimGuard } from "../services/guard";
+import { EmailTemplates, sendEmail } from "../services/email";
 
 const router = Router();
 
@@ -35,15 +37,31 @@ router.post("/login", async (req: MedBlockRequest, res: Response) => {
     res.send(token);
 });
 
-router.post("/register", async (req: MedBlockRequest, res: Response) => {
+router.post("/register", claimGuard(['admin', 'doctor']), async (req: MedBlockRequest, res: Response) => {
+    const requestUser = req.user!;
+
     const email = req.body.email as string;
-    const password = req.body.password as string;
     const firstName = req.body.firstName as string;
     const lastName = req.body.lastName as string;
+    const role = req.body.role as string;
+    const position = req.body.position as string | undefined;
+    const password = "".concat(Math.random().toString(36).substring(2, 15), Math.random().toString(36).substring(2, 15));
 
     try {
-        if(!email || !password || !firstName || !lastName) {
-            throw new Error("Invalid request");
+        if(!email || !firstName || !lastName) {
+            throw new Error("Invalid request. Expected email, firstName, lastName");
+        }
+
+        if(!role) {
+            throw new Error("Invalid request. Expected role");
+        }
+
+        if(role === 'doctor' && !position) {
+            throw new Error("Invalid request. Expected position for doctor");
+        }
+
+        if(role === 'doctor' && requestUser.role !== 'admin') {
+            throw new Error("You are not allowed to create a doctor");
         }
 
         const searchUser = await models.User.findOne({
@@ -59,10 +77,17 @@ router.post("/register", async (req: MedBlockRequest, res: Response) => {
         const user = await models.User.create({
             email: email,
             password: hash.calculate(password),
-            role: 'user',
+            role: role,
             firstName: firstName,
             lastName: lastName,
             isBlocked: false
+        });
+
+        sendEmail(email, EmailTemplates.Register, {
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password
         });
 
         res.send(new UserResponse(user));
