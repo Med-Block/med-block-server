@@ -4,7 +4,8 @@ import fs from 'fs';
 
 const EmailTemplatePath = path.join(__dirname, '../EmailTemplates');
 export const EmailTemplates = {
-    Register: 'register.html'
+    Register: 'register.html',
+    RestPassword: 'restPassword.html'
 };
 export async function sendEmail(email: string, template: string, data?: any) {
     const transporter = nodemailer.createTransport({

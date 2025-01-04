@@ -2,6 +2,8 @@ import { Response } from 'express';
 import { MedBlockRequest } from '../requests';
 import { models } from '../services/db';
 import { UserResponse } from '../response/user';
+import { calculate } from '../utils/hash';
+import { EmailTemplates, sendEmail } from '../services/email';
 
 export async function getSelf(req: MedBlockRequest, res: Response) {
     const userId = req.user!.id;
@@ -49,18 +51,45 @@ export async function updateSelf(req: MedBlockRequest, res: Response) {
     }
 
     const email = req.body.email as string;
-    const firstName = req.body.firstName as string;
-    const lastName = req.body.lastName as string;
     try {
+
+        if (!email) {
+            throw new Error('Invalid input');
+        }
+
         user.email = email;
-        user.firstName = firstName;
-        user.lastName = lastName;
         await user.save();
         res.send(new UserResponse(user));
     } catch (error) {
         res.status(400).send('Invalid input');
         return;
     }
+}
+
+export async function restPassword(req: MedBlockRequest, res: Response) {
+    const userId = req.params.id;
+    const user = await models.User.findOne({
+        where: {
+            id: userId
+        }
+    });
+
+    if (!user) {
+        res.status(404).send('User not found');
+        return;
+    }
+
+    const password = "".concat(Math.random().toString(36).substring(2, 15), Math.random().toString(36).substring(2, 15));
+    user.password = calculate(password);
+
+    sendEmail(user.email, EmailTemplates.RestPassword, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        password: password
+    });
+
+    await user.save();
+    res.send(new UserResponse(user));
 }
 
 export async function updateById(req: MedBlockRequest, res: Response) {
@@ -83,11 +112,17 @@ export async function updateById(req: MedBlockRequest, res: Response) {
     const role = req.body.role as string;
 
     try {
+        if(user.role === 'admin' && reqRole !== 'admin') {
+            throw new Error('You are not allowed to update this user');
+        }
+        if(user.role === 'doctor' && reqRole !== 'admin') {
+            throw new Error('You are not allowed to update this user');
+        }
         user.firstName = firstName as string ?? user.firstName;
         user.lastName = lastName as string ?? user.lastName;
-        user.position = position;
         if (reqRole === 'admin') {
             user.role = role as string ?? user.role;
+            user.position = position;
         }
         await user.save();
         res.send(new UserResponse(user));
@@ -119,7 +154,7 @@ export async function getAll(req: MedBlockRequest, res: Response) {
     var role = req.user!.role;
     const users = role === 'admin' ? await models.User.findAll() : await models.User.findAll({
         where: {
-            role: 'patient'
+            role: 'user'
         }
     });
     res.send(users.map(user => new UserResponse(user)));
