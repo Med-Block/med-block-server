@@ -64,6 +64,10 @@ router.post("/register", claimGuard(['admin', 'doctor']), async (req: MedBlockRe
             throw new Error("You are not allowed to create a doctor");
         }
 
+        if(role === 'admin' && requestUser.role !== 'admin') {
+            throw new Error("You are not allowed to create an admin");
+        }
+
         const searchUser = await models.User.findOne({
             where: {
                 email: email
