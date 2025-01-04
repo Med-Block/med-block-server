@@ -64,6 +64,7 @@ export async function updateSelf(req: MedBlockRequest, res: Response) {
 }
 
 export async function updateById(req: MedBlockRequest, res: Response) {
+    const reqRole = req.user!.role;
     const userId = req.params.id;
     const user = await models.User.findOne({
         where: {
@@ -76,17 +77,18 @@ export async function updateById(req: MedBlockRequest, res: Response) {
         return;
     }
 
-    const email = req.body.email as string;
     const firstName = req.body.firstName as string;
     const lastName = req.body.lastName as string;
     const position = req.body.position as string;
     const role = req.body.role as string;
+
     try {
-        user.email = email as string ?? user.email;
         user.firstName = firstName as string ?? user.firstName;
         user.lastName = lastName as string ?? user.lastName;
         user.position = position;
-        user.role = role as string ?? user.role;
+        if (reqRole === 'admin') {
+            user.role = role as string ?? user.role;
+        }
         await user.save();
         res.send(new UserResponse(user));
     } catch (error) {
@@ -114,7 +116,12 @@ export async function blockSwitchById(req: MedBlockRequest, res: Response) {
 }
 
 export async function getAll(req: MedBlockRequest, res: Response) {
-    const users = await models.User.findAll();
+    var role = req.user!.role;
+    const users = role === 'admin' ? await models.User.findAll() : await models.User.findAll({
+        where: {
+            role: 'patient'
+        }
+    });
     res.send(users.map(user => new UserResponse(user)));
 }
 

@@ -4,12 +4,12 @@ import { guard, claimGuard } from "../services/guard";
 
 const router = Router();
 
-router.get("/list", claimGuard('admin'), getAll);
+router.get("/list", claimGuard(['admin', 'doctor']), getAll);
 router.get("/self", guard, getSelf);
 router.get("/:id", guard, getById);
 
 router.put("/self", guard, updateSelf);
-router.put("/:id", claimGuard('admin'), updateById);
+router.put("/:id", claimGuard(['admin', 'doctor']), updateById);
 
 router.post("/block/:id", claimGuard('admin'), blockSwitchById);
 
