@@ -4,7 +4,7 @@ import { models } from '../services/db';
 import { UserResponse } from '../response/user';
 import { calculate, verify } from '../utils/hash';
 import { EmailTemplates, sendEmail } from '../services/email';
-import { Order } from 'sequelize';
+import { Op, Order } from 'sequelize';
 
 export async function getSelf(req: MedBlockRequest, res: Response) {
     const userId = req.user!.id;
@@ -52,17 +52,42 @@ export async function updateSelf(req: MedBlockRequest, res: Response) {
     }
 
     const email = req.body.email as string;
-    try {
+    const firstName = req.body.firstName as string | undefined;
+    const lastName = req.body.lastName as string | undefined;
 
+    try {
         if (!email) {
             throw new Error('Invalid input');
         }
 
+        if (user.role === 'admin' && (!firstName || !lastName)) {
+            throw new Error('Invalid input');
+        }
+
+        const searchUser = await models.User.findOne({
+            where: {
+                id: {
+                    [Op.ne]: userId,
+                },
+                email: email
+            }
+        });
+    
+        if (searchUser) {
+            throw new Error("There is a user with the same email address");
+        }
+
         user.email = email;
+
+        if (user.role === 'admin') {
+            user.firstName = firstName!;
+            user.lastName = lastName!;
+        }
+
         await user.save();
         res.send(new UserResponse(user));
-    } catch (error) {
-        res.status(400).send('Invalid input');
+    } catch (error: any) {
+        res.status(400).send(error.message);
         return;
     }
 }
@@ -97,6 +122,12 @@ export async function updateSelfPassword(req: MedBlockRequest, res: Response) {
     const userId = req.user!.id;
     const currentPassword = req.body.currentPassword as string;
     const newPassword = req.body.newPassword as string;
+
+    if (newPassword.length < 6) {
+        res.status(404).send('New password must have at least 6 characters');
+        return;
+    }
+
     const user = await models.User.findOne({
         where: {
             id: userId
