@@ -215,6 +215,15 @@ export async function getAll(req: MedBlockRequest, res: Response) {
     res.send(response);
 }
 
+export async function getDoctors(req: MedBlockRequest, res: Response) {
+    const doctors = await models.User.findAll({
+        where: {
+            role: 'doctor'
+        }
+    });
+    res.send(doctors.map(doctor => new UserResponse(doctor)));
+}
+
 export async function deleteUser(req: MedBlockRequest, res: Response) {
     const userId = req.params.id;
     const user = await models.User.findOne({

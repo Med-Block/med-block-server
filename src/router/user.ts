@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { deleteUser, getAll, getById, getSelf, restPassword, updateById, updateSelf, updateSelfPassword } from "../controllers/user";
+import { deleteUser, getAll, getById, getDoctors, getSelf, restPassword, updateById, updateSelf, updateSelfPassword } from "../controllers/user";
 import { guard, claimGuard } from "../services/guard";
 
 const router = Router();
 
 router.get("/list", claimGuard(['admin', 'doctor']), getAll);
+router.get("/doctor", guard, getDoctors);
 router.get("/self", guard, getSelf);
 router.get("/:id", guard, getById);
 
