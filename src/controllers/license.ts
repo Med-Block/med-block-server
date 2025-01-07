@@ -132,12 +132,15 @@ export async function getLicenses(req: MedBlockRequest, res: Response): Promise<
         return res.status(404).send("User not found");
     }
 
-    if(user.role !== "user" && user.role !== "doctor") {
-        return res.status(400).send("Only users and doctors can view their licenses");
+    let whereParams: any = {};
+    if(user.role === "user") {
+        whereParams.userId = userId;
+    } else if(user.role === "doctor") {
+        whereParams.doctorId = userId;
     }
 
     const licenses = await models.License.findAll({
-        where: user.role === "user" ? { userId: userId } : { doctorId: userId },
+        where: whereParams,
         order: [
             ['updatedAt', 'DESC']
         ]
