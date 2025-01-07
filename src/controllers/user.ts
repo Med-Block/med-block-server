@@ -187,25 +187,8 @@ export async function updateById(req: MedBlockRequest, res: Response) {
     }
 }
 
-export async function blockSwitchById(req: MedBlockRequest, res: Response) {
-    const userId = req.params.id;
-    const user = await models.User.findOne({
-        where: {
-            id: userId
-        }
-    });
-
-    if (!user) {
-        res.status(404).send('User not found');
-        return;
-    }
-
-    user.isBlocked = !user.isBlocked;
-    await user.save();
-    res.send(new UserResponse(user));
-}
-
 export async function getAll(req: MedBlockRequest, res: Response) {
+    const reqUser = req.user!;
     var role = req.user!.role;
     const options = {
         order: [ ['lastName', 'ASC'] ] as Order
@@ -216,7 +199,20 @@ export async function getAll(req: MedBlockRequest, res: Response) {
         },
         ...options
     });
-    res.send(users.map(user => new UserResponse(user)));
+    let response = users.map(async user => {
+        var userResponse = new UserResponse(user);
+        const hasDataAccess = (await models.Record.findAll({
+            where: {
+                doctorId: reqUser.id,
+                patientId: user.id
+            }
+        })).length > 0;
+        return {
+            hasDataAccess: hasDataAccess,
+            ...userResponse,
+        }
+    });
+    res.send(response);
 }
 
 export async function deleteUser(req: MedBlockRequest, res: Response) {
