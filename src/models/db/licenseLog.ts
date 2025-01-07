@@ -1,4 +1,3 @@
-import e from 'express';
 import { Sequelize, DataTypes, Model } from 'sequelize';
 
 export type LicenseLogEvent = 'activate' | 'deactivate' | 'force_deactivate';
@@ -9,7 +8,6 @@ export interface LicenseLogAttributes {
     userId: number;
     event: LicenseLogEvent;
     createdAt: Date;
-    updatedAt: Date;
 }
 
 interface LicenseLogCreationAttributes extends Omit<LicenseLogAttributes, 'id'> {}
@@ -20,7 +18,6 @@ export class LicenseLog extends Model<LicenseLogAttributes, LicenseLogCreationAt
     public userId!: number;
     public event!: LicenseLogEvent;
     public createdAt!: Date;
-    public updatedAt!: Date;
 }
 
 export const initializeLicenseLog = (sequelize: Sequelize): typeof LicenseLog => {
@@ -48,12 +45,7 @@ export const initializeLicenseLog = (sequelize: Sequelize): typeof LicenseLog =>
             type: DataTypes.DATE,
             allowNull: false,
             field: 'created_at',
-        },
-        updatedAt: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            field: 'updated_at',
-        },
+        }
     }, {
         sequelize,
         modelName: 'LicenseLog',

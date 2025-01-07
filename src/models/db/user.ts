@@ -10,7 +10,6 @@ export interface UserAttributes {
     password: string;
     role: UserRole;
     position?: string;
-    isBlocked?: boolean;
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -23,7 +22,6 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public password!: string;
     public role!: UserRole;
     public position!: string;
-    public isBlocked!: boolean;
 }
 
 export const initializeUser = (sequelize: Sequelize): typeof User => {
@@ -62,13 +60,7 @@ export const initializeUser = (sequelize: Sequelize): typeof User => {
         position: {
             type: DataTypes.STRING(50),
             allowNull: true,
-        },
-        isBlocked: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false,
-            field: 'is_blocked',
-        },
+        }
     }, {
         sequelize,
         modelName: 'User',
