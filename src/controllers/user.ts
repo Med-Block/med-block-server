@@ -72,7 +72,7 @@ export async function updateSelf(req: MedBlockRequest, res: Response) {
                 email: email
             }
         });
-    
+
         if (searchUser) {
             throw new Error("There is a user with the same email address");
         }
@@ -168,10 +168,10 @@ export async function updateById(req: MedBlockRequest, res: Response) {
     const position = req.body.position as string | undefined;
 
     try {
-        if(user.role === 'admin' && reqRole !== 'admin') {
+        if (user.role === 'admin' && reqRole !== 'admin') {
             throw new Error('You are not allowed to update this user');
         }
-        if(user.role === 'doctor' && reqRole !== 'admin') {
+        if (user.role === 'doctor' && reqRole !== 'admin') {
             throw new Error('You are not allowed to update this user');
         }
         user.firstName = firstName as string ?? user.firstName;
@@ -191,7 +191,7 @@ export async function getAll(req: MedBlockRequest, res: Response) {
     const reqUser = req.user!;
     var role = req.user!.role;
     const options = {
-        order: [ ['lastName', 'ASC'] ] as Order
+        order: [['lastName', 'ASC']] as Order
     };
     const users = role === 'admin' ? await models.User.findAll(options) : await models.User.findAll({
         where: {
@@ -199,19 +199,25 @@ export async function getAll(req: MedBlockRequest, res: Response) {
         },
         ...options
     });
-    let response = users.map(async user => {
+
+    let response = await Promise.all(users.map(async user => {
         var userResponse = new UserResponse(user);
-        const hasDataAccess = (await models.Record.findAll({
+        if (role === 'admin') {
+            return userResponse;
+        }
+
+        const hasDataAccess = (await models.License.findAll({
             where: {
                 doctorId: reqUser.id,
-                patientId: user.id
+                userId: user.id,
+                isActive: true
             }
         })).length > 0;
         return {
             hasDataAccess: hasDataAccess,
             ...userResponse,
         }
-    });
+    }));
     res.send(response);
 }
 

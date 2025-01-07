@@ -84,8 +84,7 @@ router.post("/register", claimGuard(['admin', 'doctor']), async (req: MedBlockRe
             role: role,
             firstName: firstName,
             lastName: lastName,
-            position: role === 'doctor' ? position : undefined,
-            isBlocked: false
+            position: role === 'doctor' ? position : undefined
         });
 
         sendEmail(email, EmailTemplates.Register, {
