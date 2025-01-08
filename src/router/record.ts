@@ -1,9 +1,14 @@
 import { Router } from "express";
+import { claimGuard } from "../services/guard";
+import { addRecord, getRecord, getRecordList, updateRecord } from "../controllers/record";
 
 const router = Router();
 
-router.get("/", (req, res) => {
-    res.send("Hello World!");
-});
+router.get("/list", claimGuard("user"), getRecordList);
+router.get("/list/:userId", claimGuard("doctor"), getRecordList);
+
+router.post("/", claimGuard("doctor"), addRecord);
+router.put("/", claimGuard("doctor"), updateRecord);
+router.get("/:recordId", claimGuard(["doctor", "user"]), getRecord);
 
 export default router;
