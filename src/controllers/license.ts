@@ -2,6 +2,7 @@ import { MedBlockRequest } from "../requests";
 import { Response } from "express";
 import { models } from "../services/db";
 import { sendEmail } from "../services/email";
+import { UserResponse } from "../response/user";
 
 export async function activateLicense(req: MedBlockRequest, res: Response): Promise<any> {
     const userId = req.user!.id;
@@ -210,9 +211,6 @@ export async function getUserLicenses(req: MedBlockRequest, res: Response): Prom
     return res.send(licenses);
 }
 
-// Історія ліцензій (для адміна) (сортування за датою надання)
-// Хто, кому, коли дали, коли забрали (якщо є)
-
 export async function getLicenseLogs(req: MedBlockRequest, res: Response): Promise<any> {
     const licenseId = req.params.id;
     const license = await models.License.findByPk(licenseId);
@@ -230,4 +228,34 @@ export async function getLicenseLogs(req: MedBlockRequest, res: Response): Promi
     });
 
     return res.send(logs);
+}
+
+export async function getDoctorsWithLicense(req: MedBlockRequest, res: Response): Promise<any> {
+    const userId = req.user!.id;
+    const user = await models.User.findByPk(userId);
+    if (!user) {
+        return res.status(404).send("User not found");
+    }
+
+    if(user.role !== "user") {
+        return res.status(400).send("Only users can view their doctors");
+    }
+
+    const licenses = await models.License.findAll({
+        where: {
+            userId,
+            isActive: true
+        }
+    });
+
+    const doctors = await Promise.all(licenses.map(async license => {
+        const doctor = await models.User.findByPk(license.doctorId);
+        if (!doctor) {
+            return null;
+        }
+        return new UserResponse(doctor);
+    }));
+
+    return res.send(doctors);
+    
 }

@@ -7,6 +7,7 @@ const router = Router();
 router.get("/list", guard, getLicenses);
 router.get("/logs/:id", guard, getLicenseLogs);
 router.get("/user/:id", claimGuard('admin'), getUserLicenses);
+router.get("/doctors", claimGuard('user'), getUserLicenses);
 
 router.post("/activate", claimGuard('user'), activateLicense);
 router.post("/deactivate", claimGuard('user'), deactivateLicense);
