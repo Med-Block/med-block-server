@@ -133,6 +133,48 @@ export async function deactivateLicense(req: MedBlockRequest, res: Response): Pr
     return res.status(200).send("License deactivated");
 }
 
+export async function forceDeactivateLicense(req: MedBlockRequest, res: Response): Promise<any> {
+    const licenseId = req.params.id;
+    const reqUser = req.user!;
+    const license = await models.License.findByPk(licenseId);
+    if (!license) {
+        return res.status(404).send("License not found");
+    }
+
+    if (reqUser.role !== "admin") {
+        return res.status(400).send("Only admins can deactivate licenses");
+    }
+
+    license.isActive = false;
+    license.updatedAt = new Date();
+    await license.save();
+
+    await models.LicenseLog.create({
+        licenseId: license.id,
+        userId: reqUser.id,
+        event: "force_deactivate",
+        createdAt: new Date()
+    });
+
+    const user = await models.User.findByPk(license.userId);
+    const doctor = await models.User.findByPk(license.doctorId);
+
+    if(!user || !doctor) {
+        return res.status(500).send("User or doctor not found");
+    }
+
+    await sendEmail(doctor.email, 'license.html', {
+        userFirstName: user.firstName,
+        userLastName: user.lastName,
+        doctorFirstName: doctor.firstName,
+        doctorLastName: doctor.lastName,
+        licenseId: license.id,
+        state: "force deactivated"
+    });
+
+    return res.status(200).send("License deactivated");
+}
+
 export async function getLicenses(req: MedBlockRequest, res: Response): Promise<any> {
     const userId = req.user!.id;
     const user = await models.User.findByPk(userId);

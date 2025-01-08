@@ -12,5 +12,6 @@ router.get("/doctors", claimGuard('user'), getDoctorsWithLicense);
 
 router.post("/activate", claimGuard('user'), activateLicense);
 router.post("/deactivate", claimGuard('user'), deactivateLicense);
+router.post("/force_deactivate/:id", claimGuard('admin'), deactivateLicense);
 
 export default router;
