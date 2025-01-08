@@ -7,7 +7,6 @@ export class UserResponse {
     public lastName: string = '';
     public role: string = '';
     public position?: string = undefined;
-    public isBlocked: boolean = false;
     constructor(user: UserAttributes){
         this.id = user.id;
         this.email = user.email;
@@ -15,6 +14,5 @@ export class UserResponse {
         this.lastName = user.lastName;
         this.role = user.role;
         this.position = user.position;
-        this.isBlocked = user.isBlocked || false;
     }
 }

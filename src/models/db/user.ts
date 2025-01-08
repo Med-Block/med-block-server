@@ -21,7 +21,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public email!: string;
     public password!: string;
     public role!: UserRole;
-    public position!: string;
+    public position?: string;
 }
 
 export const initializeUser = (sequelize: Sequelize): typeof User => {

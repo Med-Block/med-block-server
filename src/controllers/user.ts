@@ -174,10 +174,13 @@ export async function updateById(req: MedBlockRequest, res: Response) {
         if (user.role === 'doctor' && reqRole !== 'admin') {
             throw new Error('You are not allowed to update this user');
         }
+        if (user.role === 'doctor' && !position) {
+            throw new Error('Position is required');
+        }
         user.firstName = firstName as string ?? user.firstName;
         user.lastName = lastName as string ?? user.lastName;
         if (reqRole === 'admin') {
-            user.position = user.role === 'doctor' ? position! : '';
+            user.position = user.role === 'doctor' ? position : undefined;
         }
         await user.save();
         res.send(new UserResponse(user));
@@ -222,12 +225,30 @@ export async function getAll(req: MedBlockRequest, res: Response) {
 }
 
 export async function getDoctors(req: MedBlockRequest, res: Response) {
+    const reqUser = req.user!;
     const doctors = await models.User.findAll({
         where: {
             role: 'doctor'
         }
     });
-    res.send(doctors.map(doctor => new UserResponse(doctor)));
+
+    const response = await Promise.all(doctors.map(async doctor => {
+        var doctorResponse = new UserResponse(doctor);
+
+        const hasDataAccess = (await models.License.findAll({
+            where: {
+                doctorId: doctor.id,
+                userId: reqUser.id,
+                isActive: true
+            }
+        })).length > 0;
+        return {
+            hasDataAccess: hasDataAccess,
+            ...doctorResponse,
+        }
+    }));
+
+    res.send(response);
 }
 
 export async function deleteUser(req: MedBlockRequest, res: Response) {

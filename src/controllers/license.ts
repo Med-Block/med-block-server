@@ -25,7 +25,7 @@ export async function activateLicense(req: MedBlockRequest, res: Response): Prom
         return res.status(400).send("Only doctors can request access to user's data");
     }
 
-    const license = await models.License.findOne({
+    let license = await models.License.findOne({
         where: {
             userId,
             doctorId,
@@ -47,6 +47,13 @@ export async function activateLicense(req: MedBlockRequest, res: Response): Prom
             isActive: true,
             createdAt: new Date(),
             updatedAt: new Date(),
+        });
+
+        license = await models.License.findOne({
+            where: {
+                userId,
+                doctorId,
+            }
         });
     }
 

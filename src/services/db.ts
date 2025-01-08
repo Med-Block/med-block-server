@@ -58,17 +58,61 @@ export const init = async () => {
                 {
                     email: "test2@gmail.com",
                     password: hash.calculate("password"),
-                    role: 'doctor',
-                    firstName: "Keril",
-                    lastName: "TestUser2",
-                    position: "Surgeon"
+                    role: 'admin',
+                    firstName: "Andrey",
+                    lastName: "TestUser2"
                 },
                 {
                     email: "test3@gmail.com",
                     password: hash.calculate("password"),
+                    role: 'admin',
+                    firstName: "Oleh",
+                    lastName: "TestUser3"
+                },
+                {
+                    email: "test4@gmail.com",
+                    password: hash.calculate("password"),
+                    role: 'doctor',
+                    firstName: "Keril",
+                    lastName: "TestUser4",
+                    position: "Surgeon"
+                },
+                {
+                    email: "test5@gmail.com",
+                    password: hash.calculate("password"),
+                    role: 'doctor',
+                    firstName: "Vadym",
+                    lastName: "TestUser5",
+                    position: "Urologist"
+                },
+                {
+                    email: "test6@gmail.com",
+                    password: hash.calculate("password"),
+                    role: 'doctor',
+                    firstName: "Maxim",
+                    lastName: "TestUser6",
+                    position: "Ophthalmologist"
+                },
+                {
+                    email: "test7@gmail.com",
+                    password: hash.calculate("password"),
+                    role: 'user',
+                    firstName: "Vladislav",
+                    lastName: "TestUser7"
+                },
+                {
+                    email: "test8@gmail.com",
+                    password: hash.calculate("password"),
+                    role: 'user',
+                    firstName: "Henadiy",
+                    lastName: "TestUser8"
+                },
+                {
+                    email: "test9@gmail.com",
+                    password: hash.calculate("password"),
                     role: 'user',
                     firstName: "Oleksey",
-                    lastName: "TestUser3"
+                    lastName: "TestUser9"
                 }
             ]);
         }
