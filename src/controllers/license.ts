@@ -18,11 +18,11 @@ export async function activateLicense(req: MedBlockRequest, res: Response): Prom
         return res.status(404).send("Doctor not found");
     }
 
-    if(user.role !== "user") {
+    if (user.role !== "user") {
         return res.status(400).send("Only users can grant access to their data");
     }
 
-    if(doctor.role !== "doctor") {
+    if (doctor.role !== "doctor") {
         return res.status(400).send("Only doctors can request access to user's data");
     }
 
@@ -33,11 +33,11 @@ export async function activateLicense(req: MedBlockRequest, res: Response): Prom
         }
     });
 
-    if(license && license.isActive) {
+    if (license && license.isActive) {
         return res.status(400).send("You already have a license with this doctor");
     }
 
-    if(license) {
+    if (license) {
         license.isActive = true;
         license.updatedAt = new Date();
         await license.save();
@@ -91,11 +91,11 @@ export async function deactivateLicense(req: MedBlockRequest, res: Response): Pr
         return res.status(404).send("Doctor not found");
     }
 
-    if(user.role !== "user") {
+    if (user.role !== "user") {
         return res.status(400).send("Only users can grant access to their data");
     }
 
-    if(doctor.role !== "doctor") {
+    if (doctor.role !== "doctor") {
         return res.status(400).send("Only doctors can request access to user's data");
     }
 
@@ -106,7 +106,7 @@ export async function deactivateLicense(req: MedBlockRequest, res: Response): Pr
         }
     });
 
-    if(!license || !license.isActive) {
+    if (!license || !license.isActive) {
         return res.status(400).send("You don't have a license with this doctor");
     }
 
@@ -141,9 +141,9 @@ export async function getLicenses(req: MedBlockRequest, res: Response): Promise<
     }
 
     let whereParams: any = {};
-    if(user.role === "user") {
+    if (user.role === "user") {
         whereParams.userId = userId;
-    } else if(user.role === "doctor") {
+    } else if (user.role === "doctor") {
         whereParams.doctorId = userId;
     }
 
@@ -165,7 +165,7 @@ export async function getSelfLicenseLogs(req: MedBlockRequest, res: Response): P
         return res.status(404).send("User not found");
     }
 
-    if(user.role !== "user") {
+    if (user.role !== "user") {
         return res.status(400).send("Only users can view their license logs");
     }
 
@@ -174,7 +174,7 @@ export async function getSelfLicenseLogs(req: MedBlockRequest, res: Response): P
         return res.status(404).send("License not found");
     }
 
-    if(license.userId !== userId && license.doctorId !== userId) {
+    if (license.userId !== userId && license.doctorId !== userId) {
         return res.status(400).send("You don't have access to this license");
     }
 
@@ -191,14 +191,19 @@ export async function getSelfLicenseLogs(req: MedBlockRequest, res: Response): P
 }
 
 export async function getUserLicenses(req: MedBlockRequest, res: Response): Promise<any> {
-    const userId = req.params.id;
+    const reqUser = req.user!;
+    const userId = req.params.id ? parseInt(req.params.id) : reqUser.id;
     const user = await models.User.findByPk(userId);
     if (!user) {
         return res.status(404).send("User not found");
     }
 
-    if(user.role !== "user" && user.role !== "doctor") {
-        return res.status(400).send("Only users and doctors can view their licenses");
+    if (reqUser.role !== "admin" && reqUser.id !== userId) {
+        return res.status(400).send("You are not allowed to view this user's licenses");
+    }
+
+    if (user.role !== "user" && user.role !== "doctor") {
+        return res.status(400).send("Only users and doctors can have licenses");
     }
 
     const licenses = await models.License.findAll({
@@ -237,7 +242,7 @@ export async function getDoctorsWithLicense(req: MedBlockRequest, res: Response)
         return res.status(404).send("User not found");
     }
 
-    if(user.role !== "user") {
+    if (user.role !== "user") {
         return res.status(400).send("Only users can view their doctors");
     }
 
@@ -257,5 +262,5 @@ export async function getDoctorsWithLicense(req: MedBlockRequest, res: Response)
     }));
 
     return res.send(doctors);
-    
+
 }
