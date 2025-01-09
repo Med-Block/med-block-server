@@ -159,7 +159,7 @@ export async function forceDeactivateLicense(req: MedBlockRequest, res: Response
     const user = await models.User.findByPk(license.userId);
     const doctor = await models.User.findByPk(license.doctorId);
 
-    if(!user || !doctor) {
+    if (!user || !doctor) {
         return res.status(500).send("User or doctor not found");
     }
 
@@ -259,22 +259,37 @@ export async function getUserLicenses(req: MedBlockRequest, res: Response): Prom
 }
 
 export async function getLicenseLogs(req: MedBlockRequest, res: Response): Promise<any> {
-    const licenseId = req.params.id;
-    const license = await models.License.findByPk(licenseId);
-    if (!license) {
-        return res.status(404).send("License not found");
-    }
+    const licenseLogs = await models.LicenseLog.findAll();
 
-    const logs = await models.LicenseLog.findAll({
-        where: {
-            licenseId: licenseId
-        },
-        order: [
-            ['createdAt', 'DESC']
-        ]
+    const licenseIds = licenseLogs.map(log => log.licenseId);
+    const licenses = await models.License.findAll({
+        where: { id: licenseIds }
     });
 
-    return res.send(logs);
+    const userIds = [
+        ...new Set([
+            ...licenses.map(license => license.userId),
+            ...licenses.map(license => license.doctorId),
+        ])
+    ];
+    const users = await models.User.findAll({
+        where: { id: userIds }
+    });
+
+    const userMap = Object.fromEntries(users.map(user => [user.id, user]));
+    const licenseMap = Object.fromEntries(licenses.map(license => [license.id, license]));
+
+    const result = licenseLogs.map(log => {
+        const license = licenseMap[log.licenseId];
+        return {
+            ...log.toJSON(),
+            user: new UserResponse(userMap[license.userId]),
+            doctor: new UserResponse(userMap[license.doctorId]),
+            userId: undefined
+        };
+    });
+
+    res.send(result);
 }
 
 export async function getDoctorsWithLicense(req: MedBlockRequest, res: Response): Promise<any> {

@@ -5,7 +5,7 @@ import { activateLicense, deactivateLicense, getDoctorsWithLicense, getLicenseLo
 const router = Router();
 
 router.get("/list", guard, getLicenses);
-router.get("/logs/:id", guard, getLicenseLogs);
+router.get("/logs", claimGuard('admin'), getLicenseLogs);
 router.get("/user/:id", claimGuard('admin'), getUserLicenses);
 router.get("/doctors", claimGuard('user'), getDoctorsWithLicense);
 
