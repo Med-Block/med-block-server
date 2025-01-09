@@ -139,13 +139,24 @@ export async function getRecordList(req: MedBlockRequest, res: Response): Promis
             return res.status(400).send("Patient ID is required");
         }
 
+        const license = await models.License.findOne({
+            where: {
+                userId: patientId,
+                doctorId: userId,
+                isActive: true
+            }
+        });
+        if (!license) {
+            return res.status(400).send("The doctor has no access");
+        }
+
         return res.send(await getUserRecords(patientId));
     } else {
         return res.status(400).send("Only users and doctors can have records");
     }
 }
 
-async function getUserRecords(userId: number): Promise<any> {
+async function getUserRecords(userId: number): Promise<RecordResponse[]> {
     const records = await models.Record.findAll({
         where: {
             patientId: userId,
