@@ -46,6 +46,21 @@ export const init = async () => {
 
         console.log('All models were synchronized successfully.');
 
+        if ((await models.RecordType.count()) === 0) {
+            await models.RecordType.bulkCreate([
+                { name: 'Diagnosis' },
+                { name: 'Treatment Plan' },
+                { name: 'Lab Results' },
+                { name: 'Prescription' },
+                { name: 'Progress Notes' },
+                { name: 'Referral' },
+                { name: 'Follow-Up Plan' },
+                { name: 'Immunization Record' },
+                { name: 'Allergy Information' },
+                { name: 'Consultation Note' },
+            ]);
+        }
+
         if ((await models.User.count()) === 0) {
             await models.User.bulkCreate([
                 {
@@ -113,7 +128,7 @@ export const init = async () => {
                     role: 'user',
                     firstName: "Oleksey",
                     lastName: "TestUser9"
-                }
+                },
             ]);
         }
     } catch (error) {
