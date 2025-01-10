@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { claimGuard, guard } from "../services/guard";
-import { activateLicense, deactivateLicense, getDoctorsWithLicense, getLicenseLogs, getLicenses, getUserLicenses } from "../controllers/license";
+import { activateLicense, deactivateLicense, forceDeactivateLicense, getDoctorsWithLicense, getLicenseLogs, getLicenses, getUserLicenses } from "../controllers/license";
 
 const router = Router();
 
@@ -12,6 +12,6 @@ router.get("/doctors", claimGuard('user'), getDoctorsWithLicense);
 
 router.post("/activate", claimGuard('user'), activateLicense);
 router.post("/deactivate", claimGuard('user'), deactivateLicense);
-router.post("/force_deactivate/:id", claimGuard('admin'), deactivateLicense);
+router.post("/force_deactivate/:id", claimGuard('admin'), forceDeactivateLicense);
 
 export default router;

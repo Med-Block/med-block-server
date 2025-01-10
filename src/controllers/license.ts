@@ -249,7 +249,7 @@ export async function getUserLicenses(req: MedBlockRequest, res: Response): Prom
     }
 
     const licenses = await models.License.findAll({
-        where: user.role === "user" ? { userId: userId } : { doctorId: userId },
+        where: user.role === "user" ? { userId: userId, isActive: true } : { doctorId: userId, isActive: true },
         order: [
             ['updatedAt', 'DESC']
         ]
@@ -259,7 +259,11 @@ export async function getUserLicenses(req: MedBlockRequest, res: Response): Prom
 }
 
 export async function getLicenseLogs(req: MedBlockRequest, res: Response): Promise<any> {
-    const licenseLogs = await models.LicenseLog.findAll();
+    const licenseLogs = await models.LicenseLog.findAll({
+        order: [
+            ['createdAt', 'DESC']
+        ]
+    });
 
     const licenseIds = licenseLogs.map(log => log.licenseId);
     const licenses = await models.License.findAll({
