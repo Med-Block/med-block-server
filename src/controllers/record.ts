@@ -28,7 +28,7 @@ export async function addRecord(req: MedBlockRequest, res: Response): Promise<an
         }
     });
     if (!license) {
-        return res.status(400).send("Doctor has no access to manage this user's records");
+        return res.status(400).send("Doctor has no access to manage this patient's records");
     }
 
     const typeExists = await models.RecordType.findByPk(type);
@@ -37,7 +37,7 @@ export async function addRecord(req: MedBlockRequest, res: Response): Promise<an
     }
 
     if(user.role !== "user") {
-        return res.status(400).send("Only users can have records");
+        return res.status(400).send("Only patients can have records");
     }
 
     if(doctor.role !== "doctor") {
@@ -158,12 +158,12 @@ export async function getRecordList(req: MedBlockRequest, res: Response): Promis
             }
         });
         if (!license) {
-            return res.status(400).send("Doctor has no access to manage this user's records");
+            return res.status(400).send("Doctor has no access to manage this patient's records");
         }
 
         return res.send(await getUserRecords(patientId));
     } else {
-        return res.status(400).send("Only users and doctors can have records");
+        return res.status(400).send("Only patients and doctors can have records");
     }
 }
 

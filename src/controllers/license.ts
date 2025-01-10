@@ -92,11 +92,11 @@ export async function deactivateLicense(req: MedBlockRequest, res: Response): Pr
     }
 
     if (user.role !== "user") {
-        return res.status(400).send("Only users can grant access to their data");
+        return res.status(400).send("Only patients can grant access to their data");
     }
 
     if (doctor.role !== "doctor") {
-        return res.status(400).send("Only doctors can request access to user's data");
+        return res.status(400).send("Only doctors can request access to patients's data");
     }
 
     const license = await models.License.findOne({
@@ -160,7 +160,7 @@ export async function forceDeactivateLicense(req: MedBlockRequest, res: Response
     const doctor = await models.User.findByPk(license.doctorId);
 
     if (!user || !doctor) {
-        return res.status(500).send("User or doctor not found");
+        return res.status(500).send("Patient or doctor not found");
     }
 
     await sendEmail(doctor.email, 'license.html', {
@@ -208,7 +208,7 @@ export async function getSelfLicenseLogs(req: MedBlockRequest, res: Response): P
     }
 
     if (user.role !== "user") {
-        return res.status(400).send("Only users can view their license logs");
+        return res.status(400).send("Only patients can view their license logs");
     }
 
     const license = await models.License.findByPk(licenseId);
@@ -245,7 +245,7 @@ export async function getUserLicenses(req: MedBlockRequest, res: Response): Prom
     }
 
     if (user.role !== "user" && user.role !== "doctor") {
-        return res.status(400).send("Only users and doctors can have licenses");
+        return res.status(400).send("Only patients and doctors can have licenses");
     }
 
     const licenses = await models.License.findAll({
@@ -300,7 +300,7 @@ export async function getDoctorsWithLicense(req: MedBlockRequest, res: Response)
     }
 
     if (user.role !== "user") {
-        return res.status(400).send("Only users can view their doctors");
+        return res.status(400).send("Only patients can view their doctors");
     }
 
     const licenses = await models.License.findAll({
