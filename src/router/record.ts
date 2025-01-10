@@ -8,7 +8,7 @@ router.get("/list", claimGuard("user"), getRecordList);
 router.get("/list/:userId", claimGuard("doctor"), getRecordList);
 
 router.post("/", claimGuard("doctor"), addRecord);
-router.put("/", claimGuard("doctor"), updateRecord);
+router.put("/:recordId", claimGuard("doctor"), updateRecord);
 router.get("/:recordId", claimGuard(["doctor", "user"]), getRecord);
 
 export default router;

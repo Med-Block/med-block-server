@@ -20,6 +20,17 @@ export async function addRecord(req: MedBlockRequest, res: Response): Promise<an
         return res.status(404).send("Doctor not found");
     }
 
+    const license = await models.License.findOne({
+        where: {
+            userId: userId,
+            doctorId: doctorId,
+            isActive: true
+        }
+    });
+    if (!license) {
+        return res.status(400).send("Doctor has no access to manage this user's records");
+    }
+
     const typeExists = await models.RecordType.findByPk(type);
     if (!typeExists) {
         return res.status(404).send("Record type not found");
@@ -147,7 +158,7 @@ export async function getRecordList(req: MedBlockRequest, res: Response): Promis
             }
         });
         if (!license) {
-            return res.status(400).send("The doctor has no access");
+            return res.status(400).send("Doctor has no access to manage this user's records");
         }
 
         return res.send(await getUserRecords(patientId));
