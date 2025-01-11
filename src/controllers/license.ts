@@ -3,6 +3,8 @@ import { Response } from "express";
 import { models } from "../services/db";
 import { sendEmail } from "../services/email";
 import { UserResponse } from "../response/user";
+import { create } from "domain";
+import { createBlock } from "../services/blockchain";
 
 export async function activateLicense(req: MedBlockRequest, res: Response): Promise<any> {
     const userId = req.user!.id;
@@ -74,6 +76,13 @@ export async function activateLicense(req: MedBlockRequest, res: Response): Prom
         state: "active"
     });
 
+    createBlock({
+        event: "LICENSE_ACTIVATED",
+        userId: userId,
+        doctorId: doctorId,
+        licenseId: license!.id,
+    });
+
     return res.status(200).send("License created");
 }
 
@@ -130,6 +139,13 @@ export async function deactivateLicense(req: MedBlockRequest, res: Response): Pr
         state: "deactivated"
     });
 
+    createBlock({
+        event: "LICENSE_DEACTIVATED",
+        userId: userId,
+        doctorId: doctorId,
+        licenseId: license.id,
+    });
+
     return res.status(200).send("License deactivated");
 }
 
@@ -170,6 +186,14 @@ export async function forceDeactivateLicense(req: MedBlockRequest, res: Response
         doctorLastName: doctor.lastName,
         licenseId: license.id,
         state: "force deactivated"
+    });
+
+    createBlock({
+        event: "LICENSE_FORCE_DEACTIVATED",
+        userId: license.userId,
+        doctorId: license.doctorId,
+        adminId: reqUser.id,
+        licenseId: license.id,
     });
 
     return res.status(200).send("License deactivated");

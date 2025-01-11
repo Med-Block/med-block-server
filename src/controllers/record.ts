@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { models } from '../services/db';
 import { MedBlockRequest } from "../requests";
 import { RecordResponse } from '../response/record';
+import { createBlock } from '../services/blockchain';
+import crypto from 'crypto';
 
 export async function addRecord(req: MedBlockRequest, res: Response): Promise<any> {
     const doctorId = req.user!.id;
@@ -69,6 +71,15 @@ export async function addRecord(req: MedBlockRequest, res: Response): Promise<an
     });
 
     // Add to blockchain
+    createBlock({
+        event: 'RECORD_CREATED',
+        recordId: record.id,
+        patientId: userId,
+        doctorId: doctorId,
+        diagnosisHash: crypto.createHash('sha256').update(description).digest('hex'),
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt,
+    });
 
     return res.status(200).send(new RecordResponse(record));
 }
@@ -115,6 +126,15 @@ export async function updateRecord(req: MedBlockRequest, res: Response): Promise
     await record.save();
 
     // Update blockchain
+    createBlock({
+        event: 'RECORD_UPDATED',
+        recordId: record.id,
+        patientId: record.patientId,
+        doctorId: doctorId,
+        diagnosisHash: crypto.createHash('sha256').update(description).digest('hex'),
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt,
+    });
 
     return res.status(200).send(new RecordResponse(record));
 }
