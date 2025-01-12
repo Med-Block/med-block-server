@@ -71,7 +71,7 @@ export async function addRecord(req: MedBlockRequest, res: Response): Promise<an
     });
 
     // Add to blockchain
-    createBlock({
+    await createBlock({
         event: 'RECORD_CREATED',
         recordId: record.id,
         patientId: userId,
@@ -126,7 +126,7 @@ export async function updateRecord(req: MedBlockRequest, res: Response): Promise
     await record.save();
 
     // Update blockchain
-    createBlock({
+    await createBlock({
         event: 'RECORD_UPDATED',
         recordId: record.id,
         patientId: record.patientId,

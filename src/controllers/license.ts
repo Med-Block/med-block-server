@@ -76,7 +76,7 @@ export async function activateLicense(req: MedBlockRequest, res: Response): Prom
         state: "active"
     });
 
-    createBlock({
+    await createBlock({
         event: "LICENSE_ACTIVATED",
         userId: userId,
         doctorId: doctorId,
@@ -139,7 +139,7 @@ export async function deactivateLicense(req: MedBlockRequest, res: Response): Pr
         state: "deactivated"
     });
 
-    createBlock({
+    await createBlock({
         event: "LICENSE_DEACTIVATED",
         userId: userId,
         doctorId: doctorId,
@@ -188,7 +188,7 @@ export async function forceDeactivateLicense(req: MedBlockRequest, res: Response
         state: "force deactivated"
     });
 
-    createBlock({
+    await createBlock({
         event: "LICENSE_FORCE_DEACTIVATED",
         userId: license.userId,
         doctorId: license.doctorId,
